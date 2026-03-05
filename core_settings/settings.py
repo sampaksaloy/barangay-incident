@@ -1,4 +1,5 @@
 import os
+import dj_database_url
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-barangay-incident-reporting-system-2025')
@@ -43,8 +44,6 @@ TEMPLATES = [
         },
     },
 ]
-
-import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.config(
