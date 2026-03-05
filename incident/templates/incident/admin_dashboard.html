@@ -1,0 +1,134 @@
+{% extends 'incident/base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block page_subtitle %}Barangay Incident Overview{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#0f4c81,#1a6bb5)">
+            <div class="stat-value">{{ total }}</div>
+            <div class="stat-label">Total Reports</div>
+            <i class="bi bi-journal-text stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#d97706,#f59e0b)">
+            <div class="stat-value">{{ pending }}</div>
+            <div class="stat-label">Pending</div>
+            <i class="bi bi-hourglass-split stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#059669,#10b981)">
+            <div class="stat-value">{{ resolved }}</div>
+            <div class="stat-label">Resolved</div>
+            <i class="bi bi-check-all stat-icon"></i>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="stat-card" style="background:linear-gradient(135deg,#dc2626,#ef4444)">
+            <div class="stat-value">{{ critical }}</div>
+            <div class="stat-label">Critical</div>
+            <i class="bi bi-exclamation-triangle stat-icon"></i>
+        </div>
+    </div>
+</div>
+
+{% if critical > 0 %}
+<div class="alert alert-danger d-flex align-items-center mb-4">
+    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+    <strong>{{ critical }} critical incident{{ critical|pluralize }} need{{ critical|pluralize:"s," }} immediate attention!</strong>
+    <a href="{% url 'admin_reports' %}?priority=critical" class="btn btn-danger btn-sm ms-auto fw-600">View Critical</a>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <div class="text-muted small fw-600 mb-1">TODAY'S REPORTS</div>
+            <div class="fs-2 fw-800 text-primary">{{ today_count }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <div class="text-muted small fw-600 mb-1">THIS MONTH</div>
+            <div class="fs-2 fw-800 text-primary">{{ this_month }}</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3">
+            <div class="text-muted small fw-600 mb-1">IN PROGRESS</div>
+            <div class="fs-2 fw-800 text-info">{{ in_progress }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <span><i class="bi bi-clock-history me-2 text-primary"></i>Recent Reports</span>
+                <a href="{% url 'admin_reports' %}" class="btn btn-sm btn-outline-primary fw-600">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead><tr><th>Report #</th><th>Title</th><th>Reporter</th><th>Status</th><th>Priority</th><th></th></tr></thead>
+                    <tbody>
+                        {% for r in recent %}
+                        <tr>
+                            <td><span class="report-number">{{ r.report_number }}</span></td>
+                            <td>{{ r.title|truncatechars:30 }}</td>
+                            <td class="small">{{ r.reporter.full_name }}</td>
+                            <td><span class="status-badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+                            <td><span class="badge bg-{{ r.get_priority_color }}">{{ r.get_priority_display }}</span></td>
+                            <td>
+                                <a href="{% url 'report_detail' r.pk %}" class="btn btn-sm btn-light"><i class="bi bi-eye"></i></a>
+                                <a href="{% url 'admin_update_report' r.pk %}" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center py-4 text-muted">No reports yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-header"><i class="bi bi-pie-chart me-2"></i>Status Breakdown</div>
+            <div class="card-body"><canvas id="statusChart" style="max-height:200px"></canvas></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><i class="bi bi-bar-chart me-2"></i>Top Categories</div>
+            <div class="card-body p-0">
+                {% for item in by_category %}
+                <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                    <span class="small">{{ item.category__name|default:"Uncategorized" }}</span>
+                    <span class="badge bg-primary rounded-pill">{{ item.count }}</span>
+                </div>
+                {% empty %}
+                <p class="text-muted small text-center py-3">No data yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const statusData = {{ by_status|safe }};
+const labels = statusData.map(d => d.status.replace('_',' ').replace(/\b\w/g, c => c.toUpperCase()));
+const colors = {'pending':'#f59e0b','in_progress':'#3b82f6','resolved':'#10b981','dismissed':'#94a3b8'};
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: labels,
+        datasets: [{ data: statusData.map(d => d.count), backgroundColor: statusData.map(d => colors[d.status] || '#94a3b8'), borderWidth: 0 }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }, cutout: '65%' }
+});
+</script>
+{% endblock %}

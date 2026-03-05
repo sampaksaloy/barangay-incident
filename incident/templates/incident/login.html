@@ -1,0 +1,38 @@
+{% extends 'incident/base.html' %}
+{% block auth_content %}
+<div class="min-vh-100 d-flex" style="background: linear-gradient(135deg, #0a3259 0%, #1a6bb5 100%);">
+    <div class="m-auto" style="width: 100%; max-width: 420px; padding: 20px;">
+        <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-3 mb-3" style="width:56px;height:56px;background:#f59e0b;">
+                <i class="bi bi-shield-exclamation text-white fs-3"></i>
+            </div>
+            <h3 class="text-white fw-800 mb-1">Barangay IRS</h3>
+            <p class="text-white opacity-75 small">Incident Reporting System</p>
+        </div>
+        <div class="card p-4">
+            {% if form.errors %}
+            <div class="alert alert-danger py-2 small mb-3"><i class="bi bi-exclamation-circle me-1"></i>Invalid username or password.</div>
+            {% endif %}
+            <h5 class="fw-700 mb-4">Sign In</h5>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-600 small">Username</label>
+                    {{ form.username }}
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-600 small">Password</label>
+                    {{ form.password }}
+                </div>
+                <button type="submit" class="btn w-100 py-2 fw-700 text-white" style="background:#0f4c81;">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                </button>
+            </form>
+            <div class="text-center mt-3">
+                <small class="text-muted">No account? <a href="{% url 'register' %}" class="fw-600">Register here</a></small>
+            </div>
+        </div>
+        <p class="text-center text-white opacity-50 small mt-3">Republic of the Philippines — Barangay LGU</p>
+    </div>
+</div>
+{% endblock %}

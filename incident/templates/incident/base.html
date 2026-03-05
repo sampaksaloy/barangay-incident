@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Barangay Incident Reporting{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f4c81;
+            --primary-light: #1a6bb5;
+            --accent: #f59e0b;
+            --accent-dark: #d97706;
+            --success: #059669;
+            --danger: #dc2626;
+            --sidebar: #0a3259;
+            --sidebar-width: 260px;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); }
+        code, .mono { font-family: 'DM Mono', monospace; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-width);
+            min-height: 100vh;
+            background: var(--sidebar);
+            position: fixed; top: 0; left: 0;
+            z-index: 1000;
+            display: flex; flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+        }
+        .sidebar-brand {
+            padding: 24px 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-brand .brand-icon {
+            width: 42px; height: 42px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; color: white;
+            margin-bottom: 10px;
+        }
+        .sidebar-brand h6 { color: #fff; font-weight: 800; font-size: 0.95rem; margin: 0; }
+        .sidebar-brand small { color: rgba(255,255,255,0.5); font-size: 0.72rem; }
+        .sidebar nav { padding: 12px 0; flex: 1; }
+        .nav-section-label {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 10px 20px 4px;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.65);
+            padding: 9px 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex; align-items: center; gap: 10px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.07); }
+        .sidebar .nav-link.active { color: #fff; background: rgba(255,255,255,0.1); border-left-color: var(--accent); }
+        .sidebar .nav-link i { font-size: 1rem; width: 18px; }
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .user-pill {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 10px; padding: 8px 12px;
+        }
+        .user-avatar {
+            width: 32px; height: 32px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.8rem; color: white;
+            flex-shrink: 0;
+        }
+        .user-pill .user-name { color: #fff; font-size: 0.8rem; font-weight: 600; }
+        .user-pill .user-role { color: rgba(255,255,255,0.45); font-size: 0.7rem; }
+
+        /* MAIN */
+        .main-content { margin-left: var(--sidebar-width); min-height: 100vh; }
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            padding: 14px 28px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+        }
+        .page-body { padding: 28px; }
+
+        /* CARDS */
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            background: var(--card-bg);
+        }
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+            font-weight: 700;
+            border-radius: 14px 14px 0 0 !important;
+        }
+
+        /* STAT CARDS */
+        .stat-card {
+            border-radius: 14px;
+            padding: 22px;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -20px; right: -20px;
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+        .stat-card .stat-value { font-size: 2.2rem; font-weight: 800; color: white; line-height: 1; }
+        .stat-card .stat-label { color: rgba(255,255,255,0.8); font-size: 0.8rem; font-weight: 600; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card .stat-icon { font-size: 2rem; color: rgba(255,255,255,0.25); position: absolute; bottom: 16px; right: 20px; }
+
+        /* STATUS BADGES */
+        .badge-pending { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        .badge-in_progress { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        .badge-resolved { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .badge-dismissed { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+
+        /* REPORT NUMBER */
+        .report-number { font-family: 'DM Mono', monospace; font-weight: 500; color: var(--primary); font-size: 0.85rem; }
+
+        /* TIMELINE */
+        .timeline { position: relative; padding-left: 28px; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+        .timeline-item { position: relative; margin-bottom: 20px; }
+        .timeline-dot {
+            position: absolute; left: -24px; top: 2px;
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--primary);
+        }
+
+        /* ALERTS */
+        .alert { border-radius: 10px; border: none; }
+
+        /* TABLES */
+        .table th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 600; border-bottom: 2px solid var(--border); }
+        .table td { vertical-align: middle; }
+
+        /* PHOTO PREVIEW */
+        .photo-preview { border-radius: 10px; max-height: 300px; object-fit: cover; width: 100%; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+{% if user.is_authenticated %}
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon"><i class="bi bi-shield-exclamation"></i></div>
+        <h6>Incident Reporting</h6>
+        <small>Barangay Management System</small>
+    </div>
+    <nav>
+        <div class="nav-section-label">Main</div>
+        <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+
+        {% if user.role == 'resident' %}
+        <div class="nav-section-label">Reports</div>
+        <a href="{% url 'submit_report' %}" class="nav-link {% if request.resolver_match.url_name == 'submit_report' %}active{% endif %}">
+            <i class="bi bi-plus-circle"></i> Submit Report
+        </a>
+        <a href="{% url 'my_reports' %}" class="nav-link {% if request.resolver_match.url_name == 'my_reports' %}active{% endif %}">
+            <i class="bi bi-file-earmark-text"></i> My Reports
+        </a>
+        <div class="nav-section-label">Account</div>
+        <a href="{% url 'notifications' %}" class="nav-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+            <i class="bi bi-bell"></i> Notifications
+            {% if unread_count > 0 %}<span class="badge bg-warning text-dark ms-auto">{{ unread_count }}</span>{% endif %}
+        </a>
+        <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <i class="bi bi-person-circle"></i> My Profile
+        </a>
+        {% endif %}
+
+        {% if user.role == 'admin' %}
+        <div class="nav-section-label">Management</div>
+        <a href="{% url 'admin_reports' %}" class="nav-link {% if 'admin_report' in request.resolver_match.url_name %}active{% endif %}">
+            <i class="bi bi-journal-text"></i> All Reports
+        </a>
+        <a href="{% url 'admin_users' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+            <i class="bi bi-people"></i> Residents
+        </a>
+        <div class="nav-section-label">Analytics</div>
+        <a href="{% url 'admin_reports_summary' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_reports_summary' %}active{% endif %}">
+            <i class="bi bi-bar-chart"></i> Reports Summary
+        </a>
+        {% endif %}
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-pill">
+            <div class="user-avatar">{{ user.full_name|first }}</div>
+            <div>
+                <div class="user-name">{{ user.full_name|truncatechars:18 }}</div>
+                <div class="user-role">{{ user.get_role_display }}</div>
+            </div>
+            <a href="{% url 'logout' %}" class="ms-auto text-white opacity-50" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+    <div class="topbar">
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-sm btn-light d-md-none" onclick="document.getElementById('sidebar').classList.toggle('open')">
+                <i class="bi bi-list fs-5"></i>
+            </button>
+            <div>
+                <h6 class="mb-0 fw-700">{% block page_title %}{% endblock %}</h6>
+                <small class="text-muted">{% block page_subtitle %}{% endblock %}</small>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            {% if user.role == 'resident' %}
+            <a href="{% url 'notifications' %}" class="btn btn-light btn-sm position-relative">
+                <i class="bi bi-bell"></i>
+                {% if unread_count > 0 %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.6rem">{{ unread_count }}</span>{% endif %}
+            </a>
+            {% endif %}
+            <span class="badge {% if user.role == 'admin' %}bg-primary{% else %}bg-success{% endif %}">{{ user.get_role_display }}</span>
+        </div>
+    </div>
+    <div class="page-body">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3">
+            {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% block content %}{% endblock %}
+    </div>
+</div>
+{% else %}
+{% block auth_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

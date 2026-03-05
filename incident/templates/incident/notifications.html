@@ -1,0 +1,29 @@
+{% extends 'incident/base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header"><i class="bi bi-bell me-2 text-warning"></i>All Notifications</div>
+    <div class="card-body p-0">
+        {% for n in notifications %}
+        <div class="d-flex align-items-start p-3 border-bottom {% if not n.is_read %}bg-light{% endif %}">
+            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width:36px;height:36px;background:#fef3c7;">
+                <i class="bi bi-bell text-warning"></i>
+            </div>
+            <div class="flex-grow-1">
+                <p class="mb-1 small {% if not n.is_read %}fw-600{% endif %}">{{ n.message }}</p>
+                <small class="text-muted">{{ n.created_at|date:"M d, Y g:i A" }}</small>
+                {% if n.report %}
+                <div class="mt-1"><a href="{% url 'report_detail' n.report.pk %}" class="btn btn-sm btn-light py-0 small">View Report</a></div>
+                {% endif %}
+            </div>
+            {% if not n.is_read %}<span class="badge bg-warning text-dark ms-2">New</span>{% endif %}
+        </div>
+        {% empty %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-bell-slash fs-1 d-block mb-2 opacity-25"></i>No notifications yet.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

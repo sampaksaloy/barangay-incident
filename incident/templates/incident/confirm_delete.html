@@ -1,0 +1,22 @@
+{% extends 'incident/base.html' %}
+{% block title %}Delete Report{% endblock %}
+{% block page_title %}Delete Report{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Deletion</div>
+            <div class="card-body text-center py-4">
+                <p class="fs-5">Delete report <strong class="report-number">{{ report.report_number }}</strong>?</p>
+                <p class="text-muted small">{{ report.title }}</p>
+                <p class="text-danger small">This cannot be undone.</p>
+                <form method="post" class="d-flex gap-2 justify-content-center">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger fw-600 px-4">Yes, Delete</button>
+                    <a href="{% url 'admin_reports' %}" class="btn btn-light fw-600">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

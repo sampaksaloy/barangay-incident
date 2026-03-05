@@ -1,0 +1,111 @@
+{% extends 'incident/base.html' %}
+{% block title %}{{ report.report_number }}{% endblock %}
+{% block page_title %}Report Detail{% endblock %}
+{% block page_subtitle %}{{ report.report_number }}{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="report-number fs-6">{{ report.report_number }}</span>
+                    <span class="status-badge badge-{{ report.status }} ms-2">{{ report.get_status_display }}</span>
+                    <span class="badge bg-{{ report.get_priority_color }} ms-1">{{ report.get_priority_display }}</span>
+                </div>
+                {% if user.role == 'admin' %}
+                <a href="{% url 'admin_update_report' report.pk %}" class="btn btn-primary btn-sm fw-600">
+                    <i class="bi bi-pencil me-1"></i>Update
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <h5 class="fw-700 mb-3">{{ report.title }}</h5>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <small class="text-muted d-block fw-600">CATEGORY</small>
+                        {{ report.category.name|default:"General" }}
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block fw-600">LOCATION</small>
+                        {{ report.location }}
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block fw-600">DATE REPORTED</small>
+                        {{ report.created_at|date:"M d, Y g:i A" }}
+                    </div>
+                    {% if user.role == 'admin' %}
+                    <div class="col-md-4">
+                        <small class="text-muted d-block fw-600">REPORTER</small>
+                        {{ report.reporter.full_name }}
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-muted d-block fw-600">ASSIGNED TO</small>
+                        {{ report.assigned_to.full_name|default:"Unassigned" }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted d-block fw-600 mb-1">DESCRIPTION</small>
+                    <div class="bg-light rounded p-3">{{ report.description }}</div>
+                </div>
+                {% if report.photo %}
+                <div class="mb-3">
+                    <small class="text-muted d-block fw-600 mb-2">PHOTO EVIDENCE</small>
+                    <img src="{{ report.photo.url }}" class="photo-preview" alt="Evidence photo">
+                </div>
+                {% endif %}
+                {% if report.admin_notes and user.role == 'admin' %}
+                <div>
+                    <small class="text-muted d-block fw-600 mb-1">ADMIN NOTES</small>
+                    <div class="bg-light rounded p-3">{{ report.admin_notes }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Updates Timeline -->
+        <div class="card">
+            <div class="card-header"><i class="bi bi-clock-history me-2"></i>Activity Timeline</div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% for u in updates %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <strong class="small">{{ u.updated_by.full_name|default:"System" }}</strong>
+                            <small class="text-muted">{{ u.created_at|date:"M d, Y g:i A" }}</small>
+                        </div>
+                        {% if u.old_status and u.new_status %}
+                        <p class="mb-1 small">
+                            Status: <span class="status-badge badge-{{ u.old_status }}">{{ u.old_status }}</span>
+                            <i class="bi bi-arrow-right mx-1"></i>
+                            <span class="status-badge badge-{{ u.new_status }}">{{ u.new_status }}</span>
+                        </p>
+                        {% endif %}
+                        <p class="text-muted small mb-0">{{ u.message }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted small">No updates yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-info-circle me-2"></i>Report Summary</div>
+            <div class="card-body">
+                <table class="table table-sm mb-0">
+                    <tr><td class="text-muted small">Report #</td><td class="report-number small">{{ report.report_number }}</td></tr>
+                    <tr><td class="text-muted small">Status</td><td><span class="status-badge badge-{{ report.status }}">{{ report.get_status_display }}</span></td></tr>
+                    <tr><td class="text-muted small">Priority</td><td><span class="badge bg-{{ report.get_priority_color }}">{{ report.get_priority_display }}</span></td></tr>
+                    <tr><td class="text-muted small">Filed</td><td class="small">{{ report.created_at|date:"M d, Y" }}</td></tr>
+                    <tr><td class="text-muted small">Updated</td><td class="small">{{ report.updated_at|date:"M d, Y" }}</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

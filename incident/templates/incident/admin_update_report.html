@@ -1,0 +1,62 @@
+{% extends 'incident/base.html' %}
+{% block title %}Update Report{% endblock %}
+{% block page_title %}Update Report{% endblock %}
+{% block page_subtitle %}{{ report.report_number }} — {{ report.title|truncatechars:40 }}{% endblock %}
+{% block content %}
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-pencil-square me-2 text-primary"></i>Update Report Status</div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Status</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Priority</label>
+                            {{ form.priority }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-600">Assign Responder</label>
+                            {{ form.assigned_to }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-600">Update Message <small class="text-muted">(sent to reporter)</small></label>
+                            {{ form.update_message }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-600">Admin Notes <small class="text-muted">(internal only)</small></label>
+                            {{ form.admin_notes }}
+                        </div>
+                        <div class="col-12 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary fw-700 px-4"><i class="bi bi-check-circle me-1"></i>Save Update</button>
+                            <a href="{% url 'report_detail' report.pk %}" class="btn btn-light fw-600">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-file-text me-2"></i>Report Summary</div>
+            <div class="card-body">
+                <p class="mb-1"><strong>{{ report.title }}</strong></p>
+                <p class="small text-muted mb-2">{{ report.description|truncatechars:150 }}</p>
+                <table class="table table-sm mb-0">
+                    <tr><td class="text-muted small">Reporter</td><td class="small">{{ report.reporter.full_name }}</td></tr>
+                    <tr><td class="text-muted small">Location</td><td class="small">{{ report.location }}</td></tr>
+                    <tr><td class="text-muted small">Current Status</td><td><span class="status-badge badge-{{ report.status }}">{{ report.get_status_display }}</span></td></tr>
+                    <tr><td class="text-muted small">Filed</td><td class="small">{{ report.created_at|date:"M d, Y" }}</td></tr>
+                </table>
+                {% if report.photo %}
+                <img src="{{ report.photo.url }}" class="photo-preview mt-3" alt="Photo">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

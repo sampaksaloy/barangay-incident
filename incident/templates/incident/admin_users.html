@@ -1,0 +1,27 @@
+{% extends 'incident/base.html' %}
+{% block title %}Residents{% endblock %}
+{% block page_title %}Resident Users{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header"><i class="bi bi-people me-2 text-primary"></i>Registered Residents</div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>Name</th><th>Username</th><th>Phone</th><th>Address</th><th>Reports</th><th>Joined</th></tr></thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td><strong>{{ u.full_name }}</strong></td>
+                    <td><code>{{ u.username }}</code></td>
+                    <td class="small">{{ u.phone|default:"—" }}</td>
+                    <td class="small text-muted">{{ u.address|truncatechars:30|default:"—" }}</td>
+                    <td><span class="badge bg-primary rounded-pill">{{ u.report_count }}</span></td>
+                    <td class="small text-muted">{{ u.created_at|date:"M d, Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center py-4 text-muted">No residents yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

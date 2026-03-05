@@ -1,0 +1,48 @@
+{% extends 'incident/base.html' %}
+{% block title %}My Reports{% endblock %}
+{% block page_title %}My Reports{% endblock %}
+{% block page_subtitle %}Track all your submitted incident reports{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-list-ul me-2 text-primary"></i>All My Reports</span>
+        <div class="d-flex gap-2">
+            <select class="form-select form-select-sm" style="width:140px" onchange="location.href='?status='+this.value">
+                <option value="">All Status</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>Resolved</option>
+                <option value="dismissed" {% if status_filter == 'dismissed' %}selected{% endif %}>Dismissed</option>
+            </select>
+            <a href="{% url 'submit_report' %}" class="btn btn-primary btn-sm fw-600"><i class="bi bi-plus"></i> New</a>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead>
+                <tr><th>Report #</th><th>Title</th><th>Category</th><th>Location</th><th>Status</th><th>Date</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for r in reports %}
+                <tr>
+                    <td><span class="report-number">{{ r.report_number }}</span></td>
+                    <td><strong>{{ r.title|truncatechars:35 }}</strong></td>
+                    <td><span class="badge bg-light text-dark border">{{ r.category.name|default:"General" }}</span></td>
+                    <td class="small text-muted">{{ r.location|truncatechars:25 }}</td>
+                    <td><span class="status-badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+                    <td class="small text-muted">{{ r.created_at|date:"M d, Y" }}</td>
+                    <td><a href="{% url 'report_detail' r.pk %}" class="btn btn-sm btn-light fw-600"><i class="bi bi-eye me-1"></i>View</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center py-5 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
+                    No reports found.
+                    <div class="mt-2"><a href="{% url 'submit_report' %}" class="btn btn-primary btn-sm">Submit a Report</a></div>
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'incident/base.html' %}
+{% block title %}Reports Summary{% endblock %}
+{% block page_title %}Reports Summary{% endblock %}
+{% block page_subtitle %}Analytics and statistics{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-end mb-3">
+    <a href="?export=csv" class="btn btn-success fw-600 btn-sm"><i class="bi bi-download me-1"></i>Export CSV</a>
+</div>
+<div class="row g-3 mb-4">
+    <div class="col-md-6"><div class="card text-center py-4"><div class="fs-1 fw-800 text-primary">{{ total }}</div><div class="text-muted">Total Reports</div></div></div>
+    <div class="col-md-6"><div class="card text-center py-4"><div class="fs-1 fw-800 text-success">{{ resolution_rate }}%</div><div class="text-muted">Resolution Rate</div></div></div>
+</div>
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-bar-chart me-2"></i>Top Incident Categories</div>
+            <div class="card-body"><canvas id="catChart" style="max-height:250px"></canvas></div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-list-ol me-2"></i>Category Breakdown</div>
+            <div class="card-body p-0">
+                {% for item in by_category %}
+                <div class="d-flex justify-content-between px-3 py-2 border-bottom">
+                    <span class="small">{{ item.category__name|default:"Uncategorized" }}</span>
+                    <span class="badge bg-primary rounded-pill">{{ item.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header"><i class="bi bi-calendar3 me-2"></i>Monthly Summary</div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>Month</th><th>Total</th><th>Resolved</th><th>Pending</th><th>Resolution Rate</th></tr></thead>
+            <tbody>
+                {% for m in monthly %}
+                <tr>
+                    <td>{{ m.month|date:"F Y" }}</td>
+                    <td><strong>{{ m.total }}</strong></td>
+                    <td><span class="text-success fw-700">{{ m.resolved }}</span></td>
+                    <td><span class="text-warning fw-700">{{ m.pending }}</span></td>
+                    <td>{% if m.total %}{% widthratio m.resolved m.total 100 %}%{% else %}0%{% endif %}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-4 text-muted">No data yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+const catData = {{ by_category|safe }};
+new Chart(document.getElementById('catChart'), {
+    type: 'bar',
+    data: {
+        labels: catData.map(d => d.category__name || 'Uncategorized'),
+        datasets: [{ label: 'Reports', data: catData.map(d => d.count), backgroundColor: '#0f4c81', borderRadius: 6 }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+});
+</script>
+{% endblock %}

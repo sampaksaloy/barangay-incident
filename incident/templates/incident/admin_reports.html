@@ -1,0 +1,57 @@
+{% extends 'incident/base.html' %}
+{% block title %}All Reports{% endblock %}
+{% block page_title %}All Incident Reports{% endblock %}
+{% block page_subtitle %}Manage and respond to all reports{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <form method="get" class="row g-2 align-items-end mb-0">
+            <div class="col-md-4"><input name="search" class="form-control form-control-sm" placeholder="Search report #, title, name..." value="{{ search }}"></div>
+            <div class="col-md-2">
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="dismissed" {% if status == 'dismissed' %}selected{% endif %}>Dismissed</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="priority" class="form-select form-select-sm">
+                    <option value="">All Priority</option>
+                    <option value="low" {% if priority == 'low' %}selected{% endif %}>Low</option>
+                    <option value="medium" {% if priority == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="high" {% if priority == 'high' %}selected{% endif %}>High</option>
+                    <option value="critical" {% if priority == 'critical' %}selected{% endif %}>Critical</option>
+                </select>
+            </div>
+            <div class="col-md-2"><button type="submit" class="btn btn-primary btn-sm w-100 fw-600"><i class="bi bi-search me-1"></i>Filter</button></div>
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>Report #</th><th>Title</th><th>Reporter</th><th>Category</th><th>Status</th><th>Priority</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for r in reports %}
+                <tr>
+                    <td><span class="report-number">{{ r.report_number }}</span></td>
+                    <td><strong>{{ r.title|truncatechars:30 }}</strong></td>
+                    <td class="small">{{ r.reporter.full_name }}</td>
+                    <td><span class="badge bg-light text-dark border small">{{ r.category.name|default:"General" }}</span></td>
+                    <td><span class="status-badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+                    <td><span class="badge bg-{{ r.get_priority_color }}">{{ r.get_priority_display }}</span></td>
+                    <td class="small text-muted">{{ r.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="{% url 'report_detail' r.pk %}" class="btn btn-sm btn-light"><i class="bi bi-eye"></i></a>
+                        <a href="{% url 'admin_update_report' r.pk %}" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'admin_delete_report' r.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="text-center py-5 text-muted"><i class="bi bi-inbox fs-1 d-block mb-2 opacity-25"></i>No reports found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

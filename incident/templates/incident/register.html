@@ -1,0 +1,65 @@
+{% extends 'incident/base.html' %}
+{% block auth_content %}
+<div class="min-vh-100 d-flex" style="background: linear-gradient(135deg, #0a3259 0%, #1a6bb5 100%);">
+    <div class="m-auto" style="width:100%;max-width:500px;padding:20px;">
+        <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-3 mb-3" style="width:56px;height:56px;background:#f59e0b;">
+                <i class="bi bi-person-plus text-white fs-3"></i>
+            </div>
+            <h3 class="text-white fw-800 mb-1">Create Account</h3>
+            <p class="text-white opacity-75 small">Register as a Barangay Resident</p>
+        </div>
+        <div class="card p-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-600 small">Full Name *</label>
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}<div class="text-danger small mt-1">{{ form.full_name.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-600 small">Username *</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-600 small">Phone Number</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-600 small">Email (optional)</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-600 small">Home Address in Barangay</label>
+                        {{ form.address }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-600 small">Password *</label>
+                        {{ form.password }}
+                        {% if form.password.errors %}<div class="text-danger small mt-1">{{ form.password.errors }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-600 small">Confirm Password *</label>
+                        {{ form.password2 }}
+                    </div>
+                    {% if form.non_field_errors %}
+                    <div class="col-12">
+                        <div class="alert alert-danger py-2 small">{{ form.non_field_errors }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="col-12 mt-2">
+                        <button type="submit" class="btn w-100 py-2 fw-700 text-white" style="background:#0f4c81;">
+                            <i class="bi bi-person-check me-1"></i> Create Account
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <div class="text-center mt-3">
+                <small class="text-muted">Already have an account? <a href="{% url 'login' %}" class="fw-600">Sign in</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

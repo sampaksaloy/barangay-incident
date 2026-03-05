@@ -1,0 +1,55 @@
+{% extends 'incident/base.html' %}
+{% block title %}Submit Report{% endblock %}
+{% block page_title %}Submit Incident Report{% endblock %}
+{% block page_subtitle %}Report an incident in your barangay{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header" style="background:#0f4c81;color:white;border-radius:14px 14px 0 0 !important;">
+                <i class="bi bi-file-earmark-plus me-2"></i>New Incident Report
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-600">Incident Title *</label>
+                            {{ form.title }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Category</label>
+                            {{ form.category }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-600">Priority</label>
+                            {{ form.priority }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-600">Location *</label>
+                            {{ form.location }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-600">Description *</label>
+                            {{ form.description }}
+                            <small class="text-muted">Be as detailed as possible — what happened, when, who was involved.</small>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-600">Photo Evidence (optional)</label>
+                            {{ form.photo }}
+                            <small class="text-muted d-block">Upload a photo if available. Max 5MB.</small>
+                        </div>
+                        <div class="col-12 pt-2">
+                            <button type="submit" class="btn fw-700 text-white px-4 py-2" style="background:#0f4c81;">
+                                <i class="bi bi-send me-2"></i>Submit Report
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-light fw-600 ms-2">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
