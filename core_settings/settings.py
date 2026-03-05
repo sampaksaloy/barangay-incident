@@ -8,6 +8,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-barangay-incident-rep
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = ['https://barangay-incident-production.up.railway.app']
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
