@@ -26,7 +26,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'barangay_incident.urls'
+ROOT_URLCONF = 'core_settings.urls'
 
 TEMPLATES = [
     {
