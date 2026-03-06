@@ -41,22 +41,39 @@
         </div>
     </div>
     <div class="col-lg-5">
-        <div class="card">
-            <div class="card-header"><i class="bi bi-file-text me-2"></i>Report Summary</div>
-            <div class="card-body">
-                <p class="mb-1"><strong>{{ report.title }}</strong></p>
-                <p class="small text-muted mb-2">{{ report.description|truncatechars:150 }}</p>
-                <table class="table table-sm mb-0">
-                    <tr><td class="text-muted small">Reporter</td><td class="small">{{ report.reporter.full_name }}</td></tr>
-                    <tr><td class="text-muted small">Location</td><td class="small">{{ report.location }}</td></tr>
-                    <tr><td class="text-muted small">Current Status</td><td><span class="status-badge badge-{{ report.status }}">{{ report.get_status_display }}</span></td></tr>
-                    <tr><td class="text-muted small">Filed</td><td class="small">{{ report.created_at|date:"M d, Y" }}</td></tr>
-                </table>
-                {% if report.photo %}
-                <img src="{{ report.photo.url }}" class="photo-preview mt-3" alt="Photo">
-                {% endif %}
-            </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-light fw-bold">
+            <i class="bi bi-file-text me-2"></i>Report Summary
+        </div>
+        <div class="card-body">
+            <p class="mb-1"><strong>{{ report.title }}</strong></p>
+            <p class="small text-muted mb-3">{{ report.description|truncatechars:150 }}</p>
+            
+            <table class="table table-sm table-borderless mb-3">
+                <tr><td class="text-muted small" style="width: 40%;">Reporter</td><td class="small fw-600">{{ report.reporter.full_name|default:report.reporter.username }}</td></tr>
+                <tr><td class="text-muted small">Location</td><td class="small">{{ report.location }}</td></tr>
+                <tr><td class="text-muted small">Current Status</td><td><span class="badge rounded-pill bg-{{ report.status|default:'secondary' }}">{{ report.get_status_display }}</span></td></tr>
+                <tr><td class="text-muted small">Filed on</td><td class="small">{{ report.created_at|date:"M d, Y h:i A" }}</td></tr>
+            </table>
+
+            <hr>
+
+            <label class="form-label fw-bold small text-uppercase text-muted">Evidence Photo</label>
+            {% if report.photo %}
+                <div class="position-relative">
+                    <a href="{{ report.photo.url }}" target="_blank" title="Click to view full image">
+                        <img src="{{ report.photo.url }}" class="img-fluid rounded border shadow-sm" style="max-height: 300px; width: 100%; object-fit: cover;" alt="Incident Evidence">
+                        <div class="position-absolute bottom-0 end-0 m-2">
+                            <span class="badge bg-dark opacity-75"><i class="bi bi-zoom-in me-1"></i>Enlarge</span>
+                        </div>
+                    </a>
+                </div>
+            {% else %}
+                <div class="text-center py-4 border rounded bg-light">
+                    <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+                    <p class="small text-muted mt-2 mb-0">No photo uploaded by resident</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
-{% endblock %}
