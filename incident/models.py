@@ -29,6 +29,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     profile_photo = models.ImageField(upload_to='profiles/', null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
+    login_count = models.PositiveIntegerField(default=0) # Add this line
 
     objects = UserManager()
     USERNAME_FIELD = 'username'

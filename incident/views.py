@@ -40,16 +40,20 @@ def login_view(request):
     form = LoginForm(request, data=request.POST or None)
     if request.method == 'POST' and form.is_valid():
         user = form.get_user()
+        
+        # Increment the count you just added to models.py
+        user.login_count += 1
+        user.save()
+        
         login(request, user)
         
-        # Success message for the user
-        messages.success(request, f"Welcome back, {user.full_name or user.username}!")
+        # Only show the message if this is the 2nd time or more
+        if user.login_count > 1:
+            messages.success(request, f"Welcome back, {user.full_name or user.username}!")
         
-        # Ensure they go to the dashboard
         return redirect('dashboard')
     
     return render(request, 'incident/login.html', {'form': form})
-
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -58,15 +62,13 @@ def register_view(request):
     form = RegisterForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         user = form.save(commit=False)
-        
-        # Ensure they have the correct role so they can log in successfully
         user.role = 'resident' 
+        user.login_count = 0  # Starts at 0 for new users
         user.save()
         
-        # 1. Show the success message
-        messages.success(request, f'Registration successful for {user.username}! Please log in to continue.')
+        # REMOVED: messages.success(...) 
+        # By removing the message line here, it will not show up anywhere.
         
-        # 2. Automatically redirect them back to the login page
         return redirect('login') 
         
     return render(request, 'incident/register.html', {'form': form})
