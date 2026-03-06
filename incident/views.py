@@ -41,13 +41,13 @@ def login_view(request):
     if request.method == 'POST' and form.is_valid():
         user = form.get_user()
         
-        # Increment the count you just added to models.py
+        # Increment the count we added to models.py
         user.login_count += 1
         user.save()
         
         login(request, user)
         
-        # Only show the message if this is the 2nd time or more
+        # Only show greeting if this is the 2nd time or more
         if user.login_count > 1:
             messages.success(request, f"Welcome back, {user.full_name or user.username}!")
         
@@ -66,13 +66,10 @@ def register_view(request):
         user.login_count = 0  # Starts at 0 for new users
         user.save()
         
-        # REMOVED: messages.success(...) 
-        # By removing the message line here, it will not show up anywhere.
-        
+        # We removed messages.success here so it is quiet
         return redirect('login') 
         
     return render(request, 'incident/register.html', {'form': form})
-
 @login_required
 def logout_view(request):
     logout(request)
