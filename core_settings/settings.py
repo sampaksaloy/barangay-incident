@@ -58,7 +58,6 @@ DATABASES = {
         default='sqlite:///db.sqlite3'
     )
 }
-
 AUTH_USER_MODEL = 'incident.User'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
@@ -69,18 +68,10 @@ USE_TZ = True
 USE_I18N = True
 LANGUAGE_CODE = 'en-us'
 
-# --- STATIC FILES (Whitenoise Config) ---
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# --- MEDIA FILES (User Uploads) ---
+
 MEDIA_URL = '/media/'
-# Using 'media' folder for consistency across templates and URLs
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# Automatic folder creation for Railway environments
-if not os.path.exists(MEDIA_ROOT):
-    os.makedirs(MEDIA_ROOT)
-
+MEDIA_ROOT = BASE_DIR / 'uploads'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
