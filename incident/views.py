@@ -49,10 +49,21 @@ def login_view(request):
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
+    
     form = RegisterForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
-        user = form.save()
-        return render(request, 'incident/register_success.html', {'user': user})
+        user = form.save(commit=False)
+        # 1. Assign the default role so the login page recognizes them
+        user.role = 'resident' 
+        user.save()
+        
+        # 2. Log them in automatically
+        login(request, user)
+        
+        # 3. Redirect straight to dashboard instead of a static success page
+        messages.success(request, f'Welcome, {user.full_name}! Your account has been created.')
+        return redirect('dashboard')
+        
     return render(request, 'incident/register.html', {'form': form})
 
 
