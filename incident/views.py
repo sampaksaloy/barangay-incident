@@ -59,17 +59,15 @@ def register_view(request):
     if request.method == 'POST' and form.is_valid():
         user = form.save(commit=False)
         
-        # 1. FIX: Assign 'resident' role so the system recognizes them on next login
+        # Ensure they have the correct role so they can log in successfully
         user.role = 'resident' 
         user.save()
         
-        # 2. FIX: Log them in automatically right now
-        login(request, user)
+        # 1. Show the success message
+        messages.success(request, f'Registration successful for {user.username}! Please log in to continue.')
         
-        messages.success(request, f'Registration successful! Welcome, {user.full_name}.')
-        
-        # 3. FIX: Send them straight to the system (Dashboard)
-        return redirect('dashboard')
+        # 2. Automatically redirect them back to the login page
+        return redirect('login') 
         
     return render(request, 'incident/register.html', {'form': form})
 
