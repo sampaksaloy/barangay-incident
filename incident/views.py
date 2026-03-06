@@ -41,19 +41,20 @@ def login_view(request):
     if request.method == 'POST' and form.is_valid():
         user = form.get_user()
         
-        # Increment the count we added to models.py
+        # 1. Track the login count
         user.login_count += 1
         user.save()
         
         login(request, user)
         
-        # Only show greeting if this is the 2nd time or more
+        # 2. Greet ONLY returning users (2nd login or more)
         if user.login_count > 1:
             messages.success(request, f"Welcome back, {user.full_name or user.username}!")
         
         return redirect('dashboard')
     
     return render(request, 'incident/login.html', {'form': form})
+
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -63,10 +64,10 @@ def register_view(request):
     if request.method == 'POST' and form.is_valid():
         user = form.save(commit=False)
         user.role = 'resident' 
-        user.login_count = 0  # Starts at 0 for new users
+        user.login_count = 0  # Initialize at 0 for new users
         user.save()
         
-        # We removed messages.success here so it is quiet
+        # 3. NO messages.success here - redirect is quiet as requested
         return redirect('login') 
         
     return render(request, 'incident/register.html', {'form': form})
