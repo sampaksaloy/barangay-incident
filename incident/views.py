@@ -31,41 +31,47 @@ def admin_required(view_func):
 
 # ── AUTH ─────────────────────────────────────────────────────────────────────
 
+# ── AUTHENTICATION ───────────────────────────────────────────────────────────
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
+    
     form = LoginForm(request, data=request.POST or None)
     if request.method == 'POST' and form.is_valid():
         user = form.get_user()
         login(request, user)
-        # Track if this is first login or returning
-        user.last_login_count = getattr(user, 'login_count', 0) + 1
-        # Use session to track
-        request.session['login_count'] = request.session.get('login_count', 0) + 1
+        
+        # Success message for the user
+        messages.success(request, f"Welcome back, {user.full_name or user.username}!")
+        
+        # Ensure they go to the dashboard
         return redirect('dashboard')
+    
     return render(request, 'incident/login.html', {'form': form})
 
 
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-    
+        
     form = RegisterForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         user = form.save(commit=False)
-        # 1. Assign the default role so the login page recognizes them
+        
+        # 1. FIX: Assign 'resident' role so the system recognizes them on next login
         user.role = 'resident' 
         user.save()
         
-        # 2. Log them in automatically
+        # 2. FIX: Log them in automatically right now
         login(request, user)
         
-        # 3. Redirect straight to dashboard instead of a static success page
-        messages.success(request, f'Welcome, {user.full_name}! Your account has been created.')
+        messages.success(request, f'Registration successful! Welcome, {user.full_name}.')
+        
+        # 3. FIX: Send them straight to the system (Dashboard)
         return redirect('dashboard')
         
     return render(request, 'incident/register.html', {'form': form})
-
 
 @login_required
 def logout_view(request):
