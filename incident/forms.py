@@ -39,15 +39,20 @@ class RegisterForm(forms.ModelForm):
 
 
 class IncidentReportForm(forms.ModelForm):
+    photo_upload = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+        label='Photo Evidence'
+    )
+
     class Meta:
         model = IncidentReport
-        fields = ['title', 'category', 'description', 'location', 'photo', 'priority']
+        fields = ['title', 'category', 'description', 'location', 'priority']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Brief title of the incident'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Describe what happened in detail...'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Where did this happen?'}),
-            'photo': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'priority': forms.Select(attrs={'class': 'form-select'}),
         }
 
@@ -76,13 +81,18 @@ class AdminUpdateForm(forms.ModelForm):
 
 
 class ProfileForm(forms.ModelForm):
+    profile_photo_upload = forms.FileField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'}),
+        label='Profile Photo'
+    )
+
     class Meta:
         model = User
-        fields = ['full_name', 'email', 'phone', 'address', 'profile_photo']
+        fields = ['full_name', 'email', 'phone', 'address']
         widgets = {
             'full_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
-            'profile_photo': forms.FileInput(attrs={'class': 'form-control'}),
         }
