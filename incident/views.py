@@ -146,7 +146,14 @@ def submit_report(request):
         photo_file = request.FILES.get('photo_upload')
         if photo_file:
             try:
-                result = cloudinary.uploader.upload(photo_file, folder='incidents/')
+                import os
+                result = cloudinary.uploader.upload(
+                    photo_file,
+                    folder='incidents/',
+                    api_key=os.environ.get('CLOUDINARY_API_KEY'),
+                    api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
+                    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+                )
                 report.photo = result['secure_url']
             except Exception as e:
                 import logging
