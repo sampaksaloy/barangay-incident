@@ -22,8 +22,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',        # ← must be BEFORE staticfiles
     'django.contrib.staticfiles',
-    'cloudinary_storage',
     'cloudinary',
     'incident',
 ]
@@ -96,3 +96,4 @@ CLOUDINARY_STORAGE = {
 }
 
 MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
