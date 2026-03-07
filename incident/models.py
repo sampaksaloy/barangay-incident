@@ -27,9 +27,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='resident')
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    profile_photo = models.URLField(max_length=500, null=True, blank=True)
+    profile_photo = models.ImageField(upload_to='profiles/', null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
-    login_count = models.PositiveIntegerField(default=0)
+    login_count = models.PositiveIntegerField(default=0) # Add this line
 
     objects = UserManager()
     USERNAME_FIELD = 'username'
@@ -76,7 +76,7 @@ class IncidentReport(models.Model):
     location = models.CharField(max_length=255)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
-    photo = models.URLField(max_length=500, null=True, blank=True)
+    photo = models.ImageField(upload_to='incidents/', null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
     assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_reports')
