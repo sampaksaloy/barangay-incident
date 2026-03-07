@@ -5,7 +5,7 @@
 {% block content %}
 <div class="row g-3">
     <div class="col-lg-7">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-header"><i class="bi bi-pencil-square me-2 text-primary"></i>Update Report Status</div>
             <div class="card-body">
                 <form method="post">
@@ -40,20 +40,31 @@
             </div>
         </div>
     </div>
+
     <div class="col-lg-5">
-        <div class="card">
-            <div class="card-header"><i class="bi bi-file-text me-2"></i>Report Summary</div>
+        <div class="card shadow-sm">
+            <div class="card-header bg-light fw-bold">
+                <i class="bi bi-file-earmark-image me-2"></i>Report Evidence
+            </div>
             <div class="card-body">
-                <p class="mb-1"><strong>{{ report.title }}</strong></p>
-                <p class="small text-muted mb-2">{{ report.description|truncatechars:150 }}</p>
-                <table class="table table-sm mb-0">
-                    <tr><td class="text-muted small">Reporter</td><td class="small">{{ report.reporter.full_name }}</td></tr>
-                    <tr><td class="text-muted small">Location</td><td class="small">{{ report.location }}</td></tr>
-                    <tr><td class="text-muted small">Current Status</td><td><span class="status-badge badge-{{ report.status }}">{{ report.get_status_display }}</span></td></tr>
-                    <tr><td class="text-muted small">Filed</td><td class="small">{{ report.created_at|date:"M d, Y" }}</td></tr>
-                </table>
+                <label class="form-label fw-bold small text-uppercase text-muted">Evidence Photo</label>
                 {% if report.photo %}
-                <img src="{{ report.photo }}" class="photo-preview mt-3" alt="Photo">
+                    <div class="position-relative">
+                        <a href="{{ report.photo.url }}" target="_blank">
+                            <img src="{{ report.photo.url }}" 
+                                 onerror="this.src='https://placehold.co/600x400?text=Image+Not+Found';" 
+                                 class="img-fluid rounded border shadow-sm" 
+                                 style="max-height: 400px; width: 100%; object-fit: cover;">
+                            <div class="mt-2 text-center">
+                                <span class="badge bg-dark opacity-75 small"><i class="bi bi-zoom-in me-1"></i>Click to Enlarge</span>
+                            </div>
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 border rounded bg-light">
+                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                        <p class="small text-muted mt-2 mb-0">No photo evidence provided</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
