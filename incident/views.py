@@ -149,7 +149,9 @@ def submit_report(request):
                 result = cloudinary.uploader.upload(photo_file, folder='incidents/')
                 report.photo = result['secure_url']
             except Exception as e:
-                pass  # Photo upload failed, continue without photo
+                import logging
+                logging.error(f"Cloudinary upload failed: {e}")
+                messages.warning(request, f'Photo upload failed: {e}')
 
         report.save()
 
