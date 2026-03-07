@@ -53,7 +53,7 @@
                     <tr><td class="text-muted small">Filed</td><td class="small">{{ report.created_at|date:"M d, Y" }}</td></tr>
                 </table>
                 {% if report.photo %}
-                <img src="{{ report.photo.url }}" class="photo-preview mt-3" alt="Photo">
+                <img src="{{ report.photo }}" class="photo-preview mt-3" alt="Photo">
                 {% endif %}
             </div>
         </div>
