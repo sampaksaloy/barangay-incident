@@ -52,7 +52,7 @@
                 {% if report.photo %}
                 <div class="mb-3">
                     <small class="text-muted d-block fw-600 mb-2">PHOTO EVIDENCE</small>
-                    <img src="{{ report.photo.url }}" class="photo-preview" alt="Evidence photo">
+                    <img src="{{ report.photo }}" class="photo-preview" alt="Evidence photo">
                 </div>
                 {% endif %}
                 {% if report.admin_notes and user.role == 'admin' %}

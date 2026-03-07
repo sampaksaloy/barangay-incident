@@ -29,7 +29,7 @@
                         <div class="col-12">
                             <label class="form-label fw-600">Profile Photo</label>
                             {{ form.profile_photo }}
-                            {% if user.profile_photo %}<img src="{{ user.profile_photo.url }}" class="d-block mt-2 rounded" style="height:60px;width:60px;object-fit:cover;">{% endif %}
+                            {% if user.profile_photo %}<img src="{{ user.profile_photo }}" class="d-block mt-2 rounded" style="height:60px;width:60px;object-fit:cover;">{% endif %}
                         </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-primary fw-700"><i class="bi bi-save me-1"></i>Save Changes</button>

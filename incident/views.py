@@ -3,14 +3,35 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Count, Q
-from django.db.models.functions import TruncMonth, TruncDate
+from django.db.models.functions import TruncMonth
 from django.utils import timezone
 from django.http import HttpResponse
-from datetime import date, timedelta
+from datetime import date
 import csv
+import cloudinary
+import cloudinary.uploader
+from django.conf import settings as django_settings
 
 from .models import User, IncidentReport, IncidentCategory, ReportUpdate, Notification
 from .forms import LoginForm, RegisterForm, IncidentReportForm, AdminUpdateForm, ProfileForm
+
+
+# Configure cloudinary from Django settings
+cloudinary.config(
+    cloud_name=django_settings.CLOUDINARY_CLOUD_NAME,
+    api_key=django_settings.CLOUDINARY_API_KEY,
+    api_secret=django_settings.CLOUDINARY_API_SECRET,
+    secure=True,
+)
+
+
+def upload_to_cloudinary(file, folder='incidents'):
+    try:
+        result = cloudinary.uploader.upload(file, folder=folder, resource_type='image')
+        return result.get('secure_url', '')
+    except Exception as e:
+        print(f"Cloudinary upload error: {e}")
+        return ''
 
 
 def generate_report_number():
@@ -29,48 +50,36 @@ def admin_required(view_func):
     return wrapper
 
 
-# ── AUTH ─────────────────────────────────────────────────────────────────────
-
 # ── AUTHENTICATION ───────────────────────────────────────────────────────────
 
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-    
     form = LoginForm(request, data=request.POST or None)
     if request.method == 'POST' and form.is_valid():
         user = form.get_user()
-        
-        # 1. Track the login count
         user.login_count += 1
         user.save()
-        
         login(request, user)
-        
-        # 2. Greet ONLY returning users (2nd login or more)
         if user.login_count > 1:
             messages.success(request, f"Welcome back, {user.full_name or user.username}!")
-        
         return redirect('dashboard')
-    
     return render(request, 'incident/login.html', {'form': form})
 
 
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-        
     form = RegisterForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         user = form.save(commit=False)
-        user.role = 'resident' 
-        user.login_count = 0  # Initialize at 0 for new users
+        user.role = 'resident'
+        user.login_count = 0
         user.save()
-        
-        # 3. NO messages.success here - redirect is quiet as requested
-        return redirect('login') 
-        
+        return redirect('login')
     return render(request, 'incident/register.html', {'form': form})
+
+
 @login_required
 def logout_view(request):
     logout(request)
@@ -112,16 +121,12 @@ def admin_dashboard(request):
     resolved = reports.filter(status='resolved').count()
     critical = reports.filter(priority='critical', status__in=['pending', 'in_progress']).count()
     recent = reports.select_related('reporter', 'category')[:10]
-
     today = date.today()
     today_count = reports.filter(created_at__date=today).count()
     this_month = reports.filter(created_at__month=today.month, created_at__year=today.year).count()
-
     by_category = reports.values('category__name').annotate(count=Count('id')).order_by('-count')[:5]
     by_status = reports.values('status').annotate(count=Count('id'))
-
     unread_notifications = Notification.objects.filter(user=request.user, is_read=False).count()
-
     return render(request, 'incident/admin_dashboard.html', {
         'total': total, 'pending': pending, 'in_progress': in_progress,
         'resolved': resolved, 'critical': critical, 'recent': recent,
@@ -140,6 +145,14 @@ def submit_report(request):
         report = form.save(commit=False)
         report.reporter = request.user
         report.report_number = generate_report_number()
+
+        # Upload photo directly to Cloudinary
+        photo_file = request.FILES.get('photo')
+        if photo_file:
+            url = upload_to_cloudinary(photo_file, folder='incidents')
+            if url:
+                report.photo = url
+
         report.save()
 
         ReportUpdate.objects.create(
@@ -149,7 +162,6 @@ def submit_report(request):
             new_status='pending'
         )
 
-        # Notify all admins
         admins = User.objects.filter(role='admin', is_active=True)
         for admin in admins:
             Notification.objects.create(
@@ -180,12 +192,8 @@ def report_detail(request, pk):
         report = get_object_or_404(IncidentReport, pk=pk)
     else:
         report = get_object_or_404(IncidentReport, pk=pk, reporter=request.user)
-
     updates = report.updates.select_related('updated_by').all()
-
-    # Mark notifications as read
     Notification.objects.filter(user=request.user, report=report, is_read=False).update(is_read=True)
-
     return render(request, 'incident/report_detail.html', {'report': report, 'updates': updates})
 
 
@@ -200,7 +208,13 @@ def notifications_view(request):
 def profile_view(request):
     form = ProfileForm(request.POST or None, request.FILES or None, instance=request.user)
     if request.method == 'POST' and form.is_valid():
-        form.save()
+        user = form.save(commit=False)
+        photo_file = request.FILES.get('profile_photo')
+        if photo_file:
+            url = upload_to_cloudinary(photo_file, folder='profiles')
+            if url:
+                user.profile_photo = url
+        user.save()
         messages.success(request, 'Profile updated successfully!')
         return redirect('profile')
     return render(request, 'incident/profile.html', {'form': form})
@@ -215,14 +229,12 @@ def admin_reports(request):
     status = request.GET.get('status', '')
     priority = request.GET.get('priority', '')
     search = request.GET.get('search', '')
-
     if status:
         reports = reports.filter(status=status)
     if priority:
         reports = reports.filter(priority=priority)
     if search:
         reports = reports.filter(Q(title__icontains=search) | Q(reporter__full_name__icontains=search) | Q(report_number__icontains=search))
-
     return render(request, 'incident/admin_reports.html', {
         'reports': reports, 'status': status, 'priority': priority, 'search': search,
     })
@@ -233,12 +245,10 @@ def admin_reports(request):
 def admin_update_report(request, pk):
     report = get_object_or_404(IncidentReport, pk=pk)
     form = AdminUpdateForm(request.POST or None, instance=report)
-
     if request.method == 'POST' and form.is_valid():
         old_status = report.status
         updated = form.save()
         update_msg = request.POST.get('update_message', '')
-
         ReportUpdate.objects.create(
             report=updated,
             updated_by=request.user,
@@ -246,17 +256,13 @@ def admin_update_report(request, pk):
             old_status=old_status,
             new_status=updated.status
         )
-
-        # Notify the reporter
         Notification.objects.create(
             user=report.reporter,
             report=report,
             message=f'Your report "{report.title}" has been updated to {updated.get_status_display()}.'
         )
-
         messages.success(request, 'Report updated successfully!')
         return redirect('report_detail', pk=pk)
-
     return render(request, 'incident/admin_update_report.html', {'form': form, 'report': report})
 
 
@@ -284,8 +290,6 @@ def admin_users(request):
 def admin_reports_page(request):
     reports = IncidentReport.objects.all()
     today = date.today()
-
-    # Monthly summary
     monthly = (reports
                .annotate(month=TruncMonth('created_at'))
                .values('month')
@@ -295,11 +299,9 @@ def admin_reports_page(request):
                    pending=Count('id', filter=Q(status='pending')),
                )
                .order_by('-month')[:12])
-
     by_category = reports.values('category__name').annotate(count=Count('id')).order_by('-count')
     total = reports.count()
     resolution_rate = round(reports.filter(status='resolved').count() / total * 100, 1) if total else 0
-
     if request.GET.get('export') == 'csv':
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="incident_reports.csv"'
@@ -310,7 +312,6 @@ def admin_reports_page(request):
                              r.category.name if r.category else '', r.location,
                              r.status, r.priority, r.created_at.strftime('%Y-%m-%d')])
         return response
-
     return render(request, 'incident/admin_reports_summary.html', {
         'monthly': monthly, 'by_category': by_category,
         'total': total, 'resolution_rate': resolution_rate,
