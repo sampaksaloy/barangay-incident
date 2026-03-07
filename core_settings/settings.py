@@ -1,8 +1,5 @@
 import os
 import dj_database_url
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,9 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',        # ← must be BEFORE staticfiles
     'django.contrib.staticfiles',
-    'cloudinary',
     'incident',
 ]
 
@@ -63,7 +58,6 @@ DATABASES = {
         default='sqlite:///db.sqlite3'
     )
 }
-
 AUTH_USER_MODEL = 'incident.User'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
@@ -77,23 +71,7 @@ LANGUAGE_CODE = 'en-us'
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# ── Cloudinary (persistent image storage for Railway) ──────────────────────
-cloudinary.config(
-    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    api_key=os.environ.get('CLOUDINARY_API_KEY'),
-    api_secret=os.environ.get('CLOUDINARY_API_SECRET'),
-    secure=True,
-)
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
-}
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'uploads'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

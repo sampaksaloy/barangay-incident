@@ -7,7 +7,6 @@ from django.db.models.functions import TruncMonth, TruncDate
 from django.utils import timezone
 from django.http import HttpResponse
 from datetime import date, timedelta
-import cloudinary.uploader
 import csv
 
 from .models import User, IncidentReport, IncidentCategory, ReportUpdate, Notification
@@ -141,10 +140,7 @@ def submit_report(request):
         report = form.save(commit=False)
         report.reporter = request.user
         report.report_number = generate_report_number()
-        
-        # Django automatically uploads 'report.photo' to Cloudinary 
-        # upon report.save() because of your settings.py configuration.
-        report.save() 
+        report.save()
 
         ReportUpdate.objects.create(
             report=report,
@@ -167,6 +163,7 @@ def submit_report(request):
 
     categories = IncidentCategory.objects.all()
     return render(request, 'incident/submit_report.html', {'form': form, 'categories': categories})
+
 
 @login_required
 def my_reports(request):
@@ -203,18 +200,7 @@ def notifications_view(request):
 def profile_view(request):
     form = ProfileForm(request.POST or None, request.FILES or None, instance=request.user)
     if request.method == 'POST' and form.is_valid():
-        user = form.save(commit=False)
-
-        # Upload profile photo directly to Cloudinary
-        photo_file = request.FILES.get('profile_photo_upload')
-        if photo_file:
-            try:
-                result = cloudinary.uploader.upload(photo_file, folder='profiles/')
-                user.profile_photo = result['secure_url']
-            except Exception as e:
-                pass  # Photo upload failed, keep existing photo
-
-        user.save()
+        form.save()
         messages.success(request, 'Profile updated successfully!')
         return redirect('profile')
     return render(request, 'incident/profile.html', {'form': form})
